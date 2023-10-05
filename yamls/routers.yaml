@@ -1,0 +1,167 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    druidOpResourceHash: 6YSXw3d1p6tzb65k/43jFYYYKBw=
+  creationTimestamp: "2023-10-05T10:49:11Z"
+  generation: 1
+  labels:
+    app: druid
+    component: router
+    druid_cr: tiny-cluster
+    environment: stage
+    nodeSpecUniqueStr: druid-tiny-cluster-routers
+    release: alpha
+  name: druid-tiny-cluster-routers
+  namespace: druid
+  ownerReferences:
+  - apiVersion: druid.apache.org/v1alpha1
+    controller: true
+    kind: Druid
+    name: tiny-cluster
+    uid: 134e3d68-29fb-481d-8763-d2c33ad4db93
+  resourceVersion: "2038"
+  uid: f5343b77-4d73-4744-88a1-334e789dd600
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: druid
+      component: router
+      druid_cr: tiny-cluster
+      environment: stage
+      nodeSpecUniqueStr: druid-tiny-cluster-routers
+      release: alpha
+  serviceName: druid-tiny-cluster-routers
+  template:
+    metadata:
+      annotations:
+        dummy: k8s_extn_needs_atleast_one_annotation
+      creationTimestamp: null
+      labels:
+        app: druid
+        component: router
+        druid_cr: tiny-cluster
+        environment: stage
+        nodeSpecUniqueStr: druid-tiny-cluster-routers
+        release: alpha
+    spec:
+      affinity: {}
+      containers:
+      - command:
+        - /druid.sh
+        - router
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: configMapSHA
+          value: aJg9bq2ltlRowZkMTeBovbgDlbE=-w+e2P7xlCa3+rm3bU1k4n5iBh+c=
+        image: apache/druid:25.0.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /status/health
+            port: 8088
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: druid-tiny-cluster-routers
+        ports:
+        - containerPort: 8088
+          name: druid-port
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /status/health
+            port: 8088
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        securityContext:
+          privileged: true
+        startupProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /status/health
+            port: 8088
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/druid/conf/druid/cluster/_common
+          name: common-config-volume
+          readOnly: true
+        - mountPath: /opt/druid/conf/druid/cluster/query/router
+          name: nodetype-config-volume
+          readOnly: true
+        - mountPath: /opt/druid/extensions/mysql-connector
+          name: mysqlconnector
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
+          && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
+          /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
+        image: apache/druid:25.0.0
+        imagePullPolicy: IfNotPresent
+        name: mysqlconnector
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/druid/extensions/mysql-connector
+          name: mysqlconnector
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsUser: 0
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: tiny-cluster-druid-common-config
+        name: common-config-volume
+      - configMap:
+          defaultMode: 420
+          name: druid-tiny-cluster-routers-config
+        name: nodetype-config-volume
+      - emptyDir: {}
+        name: mysqlconnector
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+status:
+  availableReplicas: 1
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: druid-tiny-cluster-routers-767b9d4cc6
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: druid-tiny-cluster-routers-767b9d4cc6
+  updatedReplicas: 1
