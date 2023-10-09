@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: druid-tiny-cluster-brokers
+  namespace: druid
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid
+      component: broker
+      environment: stage
+      nodeSpecUniqueStr: druid-tiny-cluster-brokers
+      release: alpha
+  serviceName: druid-tiny-cluster-brokers
+  template:
+    metadata:
+      labels:
+        app: druid
+        component: broker
+        environment: stage
+        nodeSpecUniqueStr: druid-tiny-cluster-brokers
+        release: alpha
+    spec:
+      containers:
+        - name: druid-tiny-cluster-brokers
+          image: apache/druid:25.0.0
+          ports:
+            - containerPort: 8088
+              name: druid-port
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /status/health
+              port: 8088
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /status/health
+              port: 8088
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /opt/druid/conf/druid/cluster/_common
+              name: common-config-volume
+              readOnly: true
+            - mountPath: /opt/druid/conf/druid/cluster/query/broker
+              name: nodetype-config-volume
+              readOnly: true
+  volumeClaimTemplates:
+    - metadata:
+        name: data-volume
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: standard
+        volumeMode: Filesystem

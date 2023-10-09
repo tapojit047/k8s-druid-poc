@@ -1,0 +1,49 @@
+apiVersion: v1
+data:
+  jvm.config: |-
+    -server
+    -XX:MaxDirectMemorySize=10240g
+    -Duser.timezone=UTC
+    -Dfile.encoding=UTF-8
+    -Dlog4j.debug
+    -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
+    -Xmx512m
+    -Xms512m
+  log4j2.xml: |-
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <Configuration status="TRACE">
+        <Appenders>
+            <Http name="Http" url="https://demo.parseable.io/api/v1/ingest" method="POST">
+              <Property name="Authorization" value="Basic YWRtaW46YWRtaW4=" />
+              <Property name="X-P-Stream" value="druide2e" />
+              <Property name="Accept" value="application/json" />
+              <Property name="X-Java-Runtime" value="$${java:runtime}" />
+              <JsonLayout properties="true"/>
+            </Http>
+        </Appenders>
+        <Loggers>
+            <Root level="info">
+                <AppenderRef ref="Http"/>
+            </Root>
+        </Loggers>
+    </Configuration>
+  runtime.properties: |
+    druid.port=8088
+    druid.service=druid/broker
+    # HTTP server threads
+    druid.broker.http.numConnections=5
+    druid.server.http.numThreads=40
+    # Processing threads and buffers
+    druid.processing.buffer.sizeBytes=25000000
+    druid.sql.enable=true
+kind: ConfigMap
+metadata:
+  labels:
+    app: druid
+    component: broker
+    druid_cr: tiny-cluster
+    environment: stage
+    nodeSpecUniqueStr: druid-tiny-cluster-brokers
+    release: alpha
+  name: druid-tiny-cluster-brokers-config
+  namespace: druid
