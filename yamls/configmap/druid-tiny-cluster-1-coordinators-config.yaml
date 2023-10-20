@@ -1,0 +1,50 @@
+apiVersion: v1
+data:
+  jvm.config: |-
+    -server
+    -XX:MaxDirectMemorySize=10240g
+    -Duser.timezone=UTC
+    -Dfile.encoding=UTF-8
+    -Dlog4j.debug
+    -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
+    -Xmx800m
+    -Xms800m
+  log4j2.xml: |-
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <Configuration status="TRACE">
+        <Appenders>
+            <Http name="Http" url="https://demo.parseable.io/api/v1/ingest" method="POST">
+                <Property name="Authorization" value="Basic YWRtaW46YWRtaW4=" />
+                <Property name="X-P-Stream" value="druide2e" />
+                <Property name="Accept" value="application/json" />
+                <Property name="X-Java-Runtime" value="$${java:runtime}" />
+                <JsonLayout properties="true"/>
+            </Http>
+        </Appenders>
+        <Loggers>
+            <Root level="info">
+                <AppenderRef ref="Http"/>
+            </Root>
+        </Loggers>
+    </Configuration>
+  runtime.properties: |
+    druid.port=8088
+    druid.service=druid/coordinator
+    # HTTP server threads
+    druid.coordinator.startDelay=PT30S
+    druid.coordinator.period=PT30S
+    # Configure this coordinator to also run as Overlord
+    druid.coordinator.asOverlord.enabled=true
+    druid.coordinator.asOverlord.overlordService=druid/overlord
+    druid.indexer.queue.startDelay=PT30S
+kind: ConfigMap
+metadata:
+  labels:
+    app: druid
+    component: coordinator
+    druid_cr: tiny-cluster-1
+    environment: stage
+    nodeSpecUniqueStr: druid-tiny-cluster-1-coordinators
+    release: alpha
+  name: druid-tiny-cluster-1-coordinators-config
+  namespace: druid

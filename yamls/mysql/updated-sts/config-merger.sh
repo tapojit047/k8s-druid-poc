@@ -1,0 +1,1 @@
+cp /opt/druid/extensions/mysql-connector/mysql-connector-java.jar /opt/druid/extensions/mysql-metadata-storage/mysql-connector-java.jar

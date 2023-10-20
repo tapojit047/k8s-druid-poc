@@ -1,0 +1,2 @@
+kubectl create configmap -n druid my-init-script \
+--from-file=yamls/mysql/mysql-init-script.sql

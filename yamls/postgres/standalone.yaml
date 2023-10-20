@@ -1,0 +1,20 @@
+apiVersion: kubedb.com/v1alpha2
+kind: Postgres
+metadata:
+  name: quick-postgres
+  namespace: druid
+spec:
+  version: "13.2"
+  storageType: Durable
+  storage:
+    storageClassName: "standard"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  terminationPolicy: Delete
+  init:
+    script:
+      configMap:
+        name: pg-init-script

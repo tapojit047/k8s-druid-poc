@@ -1,0 +1,4 @@
+kubectl create configmap -n demo pg-init-script \
+--from-file=yamls/postgres/pg-init-script.sql
+
+configmap/pg-init-script created

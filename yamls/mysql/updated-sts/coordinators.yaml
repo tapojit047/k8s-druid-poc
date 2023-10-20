@@ -39,6 +39,7 @@ spec:
         - command:
             - /druid.sh
             - coordinator
+#            - /opt/druid/extensions/mysql-connector/copier.sh
           env:
             - name: POD_NAME
               valueFrom:
@@ -100,8 +101,8 @@ spec:
               readOnly: true
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
-            - mountPath: /opt/druid/extensions/mysql-metadata-storage
-              name: druid
+#            - name: mysql-metadata-storage
+#              mountPath: /opt/druid/extensions/mysql-metadata-storage
       dnsPolicy: ClusterFirst
       initContainers:
       - command:
@@ -109,7 +110,7 @@ spec:
           - -c
           - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
             && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
-            /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
+            /opt/druid/extensions/mysql-connector/mysql-connector-java.jar && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar /opt/druid/extensions/mysql-metadata-storage/mysql-connector-j-8.0.32.jar
         image: apache/druid:25.0.0
         imagePullPolicy: IfNotPresent
         name: mysqlconnector
@@ -119,8 +120,8 @@ spec:
         volumeMounts:
           - mountPath: /opt/druid/extensions/mysql-connector
             name: mysqlconnector
-          - mountPath: /opt/druid/extensions/mysql-metadata-storage
-            name: druid
+#          - name: mysql-metadata-storage
+#            mountPath: /opt/druid/extensions/mysql-metadata-storage
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:
@@ -139,10 +140,8 @@ spec:
           name: nodetype-config-volume
         - emptyDir: {}
           name: mysqlconnector
-        - name: druid
-          persistentVolumeClaim:
-            claimName: druid-druid-tiny-cluster-coordinators-0
   updateStrategy:
     rollingUpdate:
       partition: 0
     type: RollingUpdate
+

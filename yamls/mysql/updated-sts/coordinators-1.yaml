@@ -4,25 +4,25 @@ metadata:
   labels:
     app: druid
     component: coordinator
-    druid_cr: tiny-cluster
+    druid_cr: tiny-cluster-1
     environment: stage
-    nodeSpecUniqueStr: druid-tiny-cluster-coordinators
+    nodeSpecUniqueStr: druid-tiny-cluster-1-coordinators
     release: alpha
-  name: druid-tiny-cluster-coordinators
+  name: druid-tiny-cluster-1-coordinators
   namespace: druid
 spec:
   podManagementPolicy: Parallel
-  replicas: 1
+  replicas: 3
   revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: druid
       component: coordinator
-      druid_cr: tiny-cluster
+      druid_cr: tiny-cluster-1
       environment: stage
-      nodeSpecUniqueStr: druid-tiny-cluster-coordinators
+      nodeSpecUniqueStr: druid-tiny-cluster-1-coordinators
       release: alpha
-  serviceName: druid-tiny-cluster-coordinators
+  serviceName: druid-tiny-cluster-1-coordinators
   template:
     metadata:
       annotations:
@@ -30,9 +30,9 @@ spec:
       labels:
         app: druid
         component: coordinator
-        druid_cr: tiny-cluster
+        druid_cr: tiny-cluster-1
         environment: stage
-        nodeSpecUniqueStr: druid-tiny-cluster-coordinators
+        nodeSpecUniqueStr: druid-tiny-cluster-1-coordinators
         release: alpha
     spec:
       containers:
@@ -62,7 +62,7 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 5
-          name: druid-tiny-cluster-coordinators
+          name: druid-tiny-cluster-1-coordinators
           ports:
             - containerPort: 8088
               name: druid-port
@@ -100,27 +100,23 @@ spec:
               readOnly: true
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
-            - mountPath: /opt/druid/extensions/mysql-metadata-storage
-              name: druid
       dnsPolicy: ClusterFirst
       initContainers:
-      - command:
-          - sh
-          - -c
-          - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
-            && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
-            /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
-        image: apache/druid:25.0.0
-        imagePullPolicy: IfNotPresent
-        name: mysqlconnector
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-          - mountPath: /opt/druid/extensions/mysql-connector
-            name: mysqlconnector
-          - mountPath: /opt/druid/extensions/mysql-metadata-storage
-            name: druid
+        - command:
+            - sh
+            - -c
+            - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
+              && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
+              /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
+          image: apache/druid:25.0.0
+          imagePullPolicy: IfNotPresent
+          name: mysqlconnector
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /opt/druid/extensions/mysql-connector
+              name: mysqlconnector
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:
@@ -131,17 +127,14 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: tiny-cluster-druid-common-config
+            name: tiny-cluster-1-druid-common-config
           name: common-config-volume
         - configMap:
             defaultMode: 420
-            name: druid-tiny-cluster-coordinators-config
+            name: druid-tiny-cluster-1-coordinators-config
           name: nodetype-config-volume
         - emptyDir: {}
           name: mysqlconnector
-        - name: druid
-          persistentVolumeClaim:
-            claimName: druid-druid-tiny-cluster-coordinators-0
   updateStrategy:
     rollingUpdate:
       partition: 0

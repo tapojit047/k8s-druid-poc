@@ -6,27 +6,16 @@ data:
     #
     druid.zk.service.enabled=false
     druid.discovery.type=k8s
-    druid.discovery.k8s.clusterIdentifier=druid-it
+    druid.discovery.k8s.clusterIdentifier=druid-it-1
     druid.serverview.type=http
     druid.coordinator.loadqueuepeon.type=http
     druid.indexer.runner.type=httpRemote
     # Metadata Store
-     druid.metadata.storage.type=derby
-     druid.metadata.storage.connector.connectURI=jdbc:derby://localhost:1527/var/druid/metadata.db;create=true
-     druid.metadata.storage.connector.host=localhost
-     druid.metadata.storage.connector.port=1527
-     druid.metadata.storage.connector.createTables=true
-    # druid.metadata.storage.type=postgresql
-    # druid.metadata.storage.connector.connectURI=jdbc:postgresql://quick-postgres:5432/druid
-    # druid.metadata.storage.connector.connectURI=jdbc:postgresql://ha-postgres:5432/druid
-    # druid.metadata.storage.connector.user=postgres
-    # druid.metadata.storage.connector.password=Bm)lTvJreFOF*.~0
-    # druid.metadata.storage.connector.createTables=true
-    # druid.metadata.storage.type=mysql
-    # druid.metadata.storage.connector.connectURI=jdbc:mysql://mysql-init-script:3306/druid
-    # druid.metadata.storage.connector.user=root
-    # druid.metadata.storage.connector.password=Fg!s)Z2B7CGho9FW
-    # druid.metadata.storage.connector.createTables=true
+    druid.metadata.storage.type=derby
+    druid.metadata.storage.connector.connectURI=jdbc:derby://localhost:1527/var/druid/metadata.db;create=true
+    druid.metadata.storage.connector.host=localhost
+    druid.metadata.storage.connector.port=1527
+    druid.metadata.storage.connector.createTables=true
     # Deep Storage
     druid.storage.type=s3
     druid.storage.bucket=druid
@@ -55,6 +44,6 @@ kind: ConfigMap
 metadata:
   labels:
     app: druid
-    druid_cr: tiny-cluster
-  name: tiny-cluster-druid-common-config
+    druid_cr: tiny-cluster-1
+  name: tiny-cluster-1-druid-common-config
   namespace: druid
