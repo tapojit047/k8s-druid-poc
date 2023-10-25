@@ -37,9 +37,10 @@ spec:
     spec:
       affinity: {}
       containers:
-        - command:
-            - /druid.sh
-            - middleManager
+        - command: ["/bin/sh", "-c"]
+          args:
+            - |
+              /tmp/mysql-metadata-storage/copy-mysql-connector.sh; /druid.sh middleManager;
           env:
             - name: POD_NAME
               valueFrom:
@@ -101,6 +102,8 @@ spec:
               readOnly: true
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
+            - name: temp
+              mountPath: /tmp/mysql-metadata-storage
       dnsPolicy: ClusterFirst
       initContainers:
         - command:
@@ -118,6 +121,8 @@ spec:
           volumeMounts:
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
+            - name: temp
+              mountPath: /tmp/mysql-metadata-storage
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:
@@ -136,6 +141,8 @@ spec:
           name: nodetype-config-volume
         - emptyDir: {}
           name: mysqlconnector
+        - emptyDir: { }
+          name: temp
   updateStrategy:
     rollingUpdate:
       partition: 0

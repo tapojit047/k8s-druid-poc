@@ -100,6 +100,8 @@ spec:
               readOnly: true
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
+            - mountPath: /opt/druid/extensions/mysql-metadata-storage
+              name: mysql-metadata-storage
       dnsPolicy: ClusterFirst
       initContainers:
         - command:
@@ -108,6 +110,8 @@ spec:
             - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
               && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
               /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
+              && cd /opt/druid/extensions/mysql-metadata-storage && wget https://github.com/tapojit047/k8s-druid-poc/blob/main/mysql-metadata-storage-25.0.0.jar
+              && wget -O https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
           image: apache/druid:25.0.0
           imagePullPolicy: IfNotPresent
           name: mysqlconnector
@@ -117,6 +121,8 @@ spec:
           volumeMounts:
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
+            - mountPath: /opt/druid/extensions/mysql-metadata-storage
+              name: mysql-metadata-storage
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:

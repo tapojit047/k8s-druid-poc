@@ -139,9 +139,6 @@ spec:
           name: nodetype-config-volume
         - emptyDir: {}
           name: mysqlconnector
-        - name: druid
-          persistentVolumeClaim:
-            claimName: druid-druid-tiny-cluster-coordinators-0
   updateStrategy:
     rollingUpdate:
       partition: 0

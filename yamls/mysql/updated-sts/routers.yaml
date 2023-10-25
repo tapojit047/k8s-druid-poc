@@ -37,9 +37,10 @@ spec:
     spec:
       affinity: {}
       containers:
-        - command:
-            - /druid.sh
-            - router
+        - command: ["/bin/sh", "-c"]
+          args:
+            - |
+              /tmp/mysql-metadata-storage/copy-mysql-connector.sh; /druid.sh router;
           env:
             - name: POD_NAME
               valueFrom:
@@ -101,14 +102,22 @@ spec:
               readOnly: true
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
+            - name: temp
+              mountPath: /tmp/mysql-metadata-storage
       dnsPolicy: ClusterFirst
       initContainers:
         - command:
             - sh
             - -c
             - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
-              && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
-              /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
+              && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar /opt/druid/extensions/mysql-connector/mysql-connector-java.jar &&
+              wget -O /tmp/mysql-metadata-storage/mysql-connector-java-5.1.49.jar https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.49/mysql-connector-java-5.1.49.jar &&
+              echo '#!/bin/sh' > /tmp/mysql-metadata-storage/copy-mysql-connector.sh &&
+              echo 'echo "Copying MySQL connector..." >> /tmp/mysql-metadata-storage/copy-mysql-connector.log' >> /tmp/mysql-metadata-storage/copy-mysql-connector.sh &&
+              echo 'cp -r /tmp/mysql-metadata-storage/mysql-connector-java-5.1.49.jar /opt/druid/extensions/mysql-metadata-storage/mysql-connector-java-5.1.49.jar' >> /tmp/mysql-metadata-storage/copy-mysql-connector.sh &&
+              echo 'if [ $? -eq 0 ]; then' >> /tmp/mysql-metadata-storage/copy-mysql-connector.sh &&
+              echo '    echo "Copy complete" >> /tmp/mysql-metadata-storage/copy-mysql-connector.log' >> /tmp/mysql-metadata-storage/copy-mysql-connector.sh &&
+              chmod +x /tmp/mysql-metadata-storage/copy-mysql-connector.sh
           image: apache/druid:25.0.0
           imagePullPolicy: IfNotPresent
           name: mysqlconnector
@@ -118,6 +127,8 @@ spec:
           volumeMounts:
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
+            - name: temp
+              mountPath: /tmp/mysql-metadata-storage
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:
@@ -136,6 +147,8 @@ spec:
           name: nodetype-config-volume
         - emptyDir: {}
           name: mysqlconnector
+        - emptyDir: {}
+          name: temp
   updateStrategy:
     rollingUpdate:
       partition: 0
