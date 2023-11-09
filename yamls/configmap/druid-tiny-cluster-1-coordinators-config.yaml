@@ -34,17 +34,16 @@ data:
     druid.coordinator.startDelay=PT30S
     druid.coordinator.period=PT30S
     # Configure this coordinator to also run as Overlord
-    druid.coordinator.asOverlord.enabled=true
-    druid.coordinator.asOverlord.overlordService=druid/overlord
-    druid.indexer.queue.startDelay=PT30S
+    druid.coordinator.asOverlord.enabled=false
+    #druid.coordinator.asOverlord.overlordService=druid/overlord
 kind: ConfigMap
 metadata:
   labels:
     app: druid
     component: coordinator
-    druid_cr: tiny-cluster-1
+    druid_cr: tiny-cluster
     environment: stage
-    nodeSpecUniqueStr: druid-tiny-cluster-1-coordinators
+    nodeSpecUniqueStr: druid-tiny-cluster-coordinators
     release: alpha
-  name: druid-tiny-cluster-1-coordinators-config
+  name: druid-tiny-cluster-coordinators-config
   namespace: druid

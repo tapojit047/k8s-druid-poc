@@ -1,0 +1,16 @@
+curl -X DELETE http://localhost:8080/druid/overlord/v1/datasources/tutorial
+
+1. Disable Segments:
+curl -X 'POST' -H 'Content-Type:application/json' -d '{ "interval" : "2015-09-12T00:00:00.000Z/2015-09-13T00:00:00.000Z" }' http://localhost:8080/druid/coordinator/v1/datasources/tutorial/markUnused
+
+2. Kill Task:
+curl -X 'POST' -H 'Content-Type:application/json' -d @quickstart/tutorial/deletion-kill.json http://localhost:8081/druid/indexer/v1/task
+
+
+deletion-kill.json (file):
+---------------------------
+{
+  "type": "kill",
+  "dataSource": "tutorial",
+  "interval" : "2015-09-12/2015-09-13"
+}

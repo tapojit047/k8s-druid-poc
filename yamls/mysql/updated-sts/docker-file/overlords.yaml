@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: druid
+    component: overlord
+    druid_cr: tiny-cluster
+    environment: stage
+    nodeSpecUniqueStr: druid-tiny-cluster-overlords
+    release: alpha
+  name: druid-tiny-cluster-overlords
+  namespace: druid
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: druid
+      component: overlord
+      druid_cr: tiny-cluster
+      environment: stage
+      nodeSpecUniqueStr: druid-tiny-cluster-overlords
+      release: alpha
+  serviceName: druid-tiny-cluster-overlords
+  template:
+    metadata:
+      annotations:
+        dummy: k8s_extn_needs_atleast_one_annotation
+      labels:
+        app: druid
+        component: overlord
+        druid_cr: tiny-cluster
+        environment: stage
+        nodeSpecUniqueStr: druid-tiny-cluster-overlords
+        release: alpha
+    spec:
+      containers:
+        - command: ["/bin/sh", "-c"]
+          args:
+            -  |
+              /druid.sh overlord;
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+          image: apache/druid:25.0.0
+          imagePullPolicy: IfNotPresent
+          #          livenessProbe:
+          #            failureThreshold: 10
+          #            httpGet:
+          #              path: /status/health
+          #              port: 8088
+          #              scheme: HTTP
+          #            initialDelaySeconds: 5
+          #            periodSeconds: 10
+          #            successThreshold: 1
+          #            timeoutSeconds: 5
+          name: druid-tiny-cluster-overlords
+          ports:
+            - containerPort: 8088
+              name: druid-port
+              protocol: TCP
+          #          readinessProbe:
+          #            failureThreshold: 3
+          #            httpGet:
+          #              path: /status/health
+          #              port: 8088
+          #              scheme: HTTP
+          #            periodSeconds: 10
+          #            successThreshold: 1
+          #            timeoutSeconds: 1
+          resources: {}
+          securityContext:
+            privileged: true
+          #          startupProbe:
+          #            failureThreshold: 10
+          #            httpGet:
+          #              path: /status/health
+          #              port: 8088
+          #              scheme: HTTP
+          #            initialDelaySeconds: 5
+          #            periodSeconds: 10
+          #            successThreshold: 1
+          #            timeoutSeconds: 5
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /opt/druid/conf/druid/cluster/_common
+              name: common-config-volume
+              readOnly: true
+            - mountPath: /opt/druid/conf/druid/cluster/master/overlord
+              name: nodetype-config-volume
+              readOnly: true
+            #            - mountPath: /opt/druid/extensions/mysql-connector
+            #              name: mysqlconnector
+            - name: mysql-metadata-storage
+              mountPath: /opt/druid/extensions/mysql-metadata-storage
+      dnsPolicy: ClusterFirst
+      initContainers:
+        - command:
+            - sh
+            - -c
+            - cp -r /tmp/config/mysql-metadata-storage/mysql-connector-java-5.1.49.jar /opt/druid/extensions/mysql-metadata-storage/mysql-connector-java-5.1.49.jar &&
+              cp -r /tmp/config/mysql-metadata-storage/mysql-metadata-storage-25.0.0.jar /opt/druid/extensions/mysql-metadata-storage/mysql-metadata-storage-25.0.0.jar
+          image: tapojit047/druid-init:latest
+          imagePullPolicy: IfNotPresent
+          name: mysqlconnector
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            #            - mountPath: /opt/druid/extensions/mysql-connector
+            #              name: mysqlconnector
+            - name: mysql-metadata-storage
+              mountPath: /opt/druid/extensions/mysql-metadata-storage
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsUser: 0
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: tiny-cluster-druid-common-config
+          name: common-config-volume
+        - configMap:
+            defaultMode: 420
+            name: druid-tiny-cluster-overlords-config
+          name: nodetype-config-volume
+        #        - emptyDir: {}
+        #          name: mysqlconnector
+        - emptyDir: {}
+          name: mysql-metadata-storage
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate

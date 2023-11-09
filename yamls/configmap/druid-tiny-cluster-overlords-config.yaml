@@ -14,11 +14,11 @@ data:
     <Configuration status="TRACE">
         <Appenders>
             <Http name="Http" url="https://demo.parseable.io/api/v1/ingest" method="POST">
-              <Property name="Authorization" value="Basic YWRtaW46YWRtaW4=" />
-              <Property name="X-P-Stream" value="druide2e" />
-              <Property name="Accept" value="application/json" />
-              <Property name="X-Java-Runtime" value="$${java:runtime}" />
-              <JsonLayout properties="true"/>
+                <Property name="Authorization" value="Basic YWRtaW46YWRtaW4=" />
+                <Property name="X-P-Stream" value="druide2e" />
+                <Property name="Accept" value="application/json" />
+                <Property name="X-Java-Runtime" value="$${java:runtime}" />
+                <JsonLayout properties="true"/>
             </Http>
         </Appenders>
         <Loggers>
@@ -29,23 +29,17 @@ data:
     </Configuration>
   runtime.properties: |
     druid.port=8088
-    druid.service=druid/coordinator
-    # HTTP server threads
-    druid.coordinator.startDelay=PT30S
-    druid.coordinator.period=PT30S
-    # Configure this coordinator to also run as Overlord
-    druid.coordinator.asOverlord.enabled=true
-    druid.coordinator.asOverlord.overlordService=druid/overlord
+    druid.service=druid/overlord
     druid.indexer.queue.startDelay=PT30S
     druid.indexer.storage.type=metadata
 kind: ConfigMap
 metadata:
   labels:
     app: druid
-    component: coordinator
+    component: overlord
     druid_cr: tiny-cluster
     environment: stage
-    nodeSpecUniqueStr: druid-tiny-cluster-coordinators
+    nodeSpecUniqueStr: druid-tiny-cluster-overlords
     release: alpha
-  name: druid-tiny-cluster-coordinators-config
+  name: druid-tiny-cluster-overlords-config
   namespace: druid

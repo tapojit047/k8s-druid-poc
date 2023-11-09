@@ -1,0 +1,42 @@
+curl "http://localhost:8088/druid/indexer/v1/task" \
+--header 'Content-Type: application/json' \
+--data '{
+  "type" : "index_parallel",
+  "spec" : {
+    "dataSchema" : {
+      "dataSource" : "wikipedia_auto",
+      "timestampSpec": {
+        "column": "time",
+        "format": "iso"
+      },
+      "dimensionsSpec" : {
+        "useSchemaDiscovery": true
+      },
+      "metricsSpec" : [],
+      "granularitySpec" : {
+        "type" : "uniform",
+        "segmentGranularity" : "day",
+        "queryGranularity" : "none",
+        "intervals" : ["2015-09-12/2015-09-13"],
+        "rollup" : false
+      }
+    },
+    "ioConfig" : {
+      "type" : "index_parallel",
+      "inputSource" : {
+        "type" : "local",
+        "baseDir" : "quickstart/tutorial/",
+        "filter" : "wikiticker-2015-09-12-sampled.json.gz"
+      },
+      "inputFormat" : {
+        "type" : "json"
+      },
+      "appendToExisting" : false
+    },
+    "tuningConfig" : {
+      "type" : "index_parallel",
+      "maxRowsPerSegment" : 5000000,
+      "maxRowsInMemory" : 25000
+    }
+  }
+}'

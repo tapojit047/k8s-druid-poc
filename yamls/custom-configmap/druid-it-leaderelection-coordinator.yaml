@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    control-plane.alpha.kubernetes.io/leader: '{"holderIdentity":"http://10.244.0.13:8088","leaseDurationSeconds":60,"acquireTime":"20231006T043506.012Z","renewTime":"20231006T093308.553Z","leaderTransitions":1}'
+  name: druid-it-leaderelection-coordinator
+  namespace: druid

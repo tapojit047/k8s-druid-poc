@@ -40,17 +40,17 @@ spec:
         - command:
             - /druid.sh
             - historical
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.name
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
+#          env:
+#            - name: POD_NAME
+#              valueFrom:
+#                fieldRef:
+#                  apiVersion: v1
+#                  fieldPath: metadata.name
+#            - name: POD_NAMESPACE
+#              valueFrom:
+#                fieldRef:
+#                  apiVersion: v1
+#                  fieldPath: metadata.namespace
           image: apache/druid:25.0.0
           imagePullPolicy: IfNotPresent
 #          livenessProbe:
@@ -77,9 +77,9 @@ spec:
 #            periodSeconds: 10
 #            successThreshold: 1
 #            timeoutSeconds: 1
-          resources: {}
-          securityContext:
-            privileged: true
+#          resources: {}
+#          securityContext:
+#            privileged: true
 #          startupProbe:
 #            failureThreshold: 20
 #            httpGet:
@@ -99,25 +99,25 @@ spec:
             - mountPath: /opt/druid/conf/druid/cluster/data/historical
               name: nodetype-config-volume
               readOnly: true
-            - mountPath: /opt/druid/extensions/mysql-connector
-              name: mysqlconnector
+#            - mountPath: /opt/druid/extensions/mysql-connector
+#              name: mysqlconnector
       dnsPolicy: ClusterFirst
-      initContainers:
-        - command:
-            - sh
-            - -c
-            - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
-              && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
-              /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
-          image: apache/druid:25.0.0
-          imagePullPolicy: IfNotPresent
-          name: mysqlconnector
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          volumeMounts:
-            - mountPath: /opt/druid/extensions/mysql-connector
-              name: mysqlconnector
+#      initContainers:
+#        - command:
+#            - sh
+#            - -c
+#            - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
+#              && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
+#              /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
+#          image: apache/druid:25.0.0
+#          imagePullPolicy: IfNotPresent
+#          name: mysqlconnector
+#          resources: {}
+#          terminationMessagePath: /dev/termination-log
+#          terminationMessagePolicy: File
+#          volumeMounts:
+#            - mountPath: /opt/druid/extensions/mysql-connector
+#              name: mysqlconnector
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:
@@ -128,15 +128,21 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: tiny-cluster-druid-common-config
+            name: tiny-cluster-druid-config
           name: common-config-volume
         - configMap:
             defaultMode: 420
-            name: druid-tiny-cluster-historicals-config
+            name: tiny-cluster-druid-config
+            items:
+              - key: historicals.properties
+                path: runtime.properties
+              - key: jvm.config
+                path: jvm.config
           name: nodetype-config-volume
-        - emptyDir: {}
-          name: mysqlconnector
+#        - emptyDir: {}
+#          name: mysqlconnector
   updateStrategy:
-    rollingUpdate:
-      partition: 0
-    type: RollingUpdate
+#    rollingUpdate:
+#      partition: 0
+#    type: RollingUpdate
+    type: OnDelete

@@ -20,9 +20,9 @@ spec:
   ipFamilyPolicy: SingleStack
   ports:
   - name: service-port
-    port: 8088
+    port: 8086
     protocol: TCP
-    targetPort: 8088
+    targetPort: 8086
   selector:
     app: druid
     component: router

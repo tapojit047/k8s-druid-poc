@@ -1,0 +1,4 @@
+curl "http://ROUTER_IP:ROUTER_PORT/druid/indexer/v1/completeTasks"
+curl "http://localhost:8080/druid/indexer/v1/completeTasks"  --> OverLord --> Works
+curl "http://localhost:8088/druid/indexer/v1/completeTasks"  --> Router --> Works
+curl "http://localhost:8088/druid/indexer/v1/completeTasks"  --> Broker --> Does not Work

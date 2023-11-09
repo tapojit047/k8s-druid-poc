@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/created-by: druid
+    app.kubernetes.io/instance: druid-sample
+    app.kubernetes.io/managed-by: kubedb.com
+    app.kubernetes.io/name: druids.kubedb.com
+    app.kubernetes.io/part-of: druid
+    kubedb.com/role: historicals
+  name: druid-sample-historicals
+  namespace: druid
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: druid-sample
+      app.kubernetes.io/managed-by: kubedb.com
+      app.kubernetes.io/name: druids.kubedb.com
+      kubedb.com/role: historicals
+  serviceName: druid-sample-pods
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: database
+        app.kubernetes.io/created-by: druid
+        app.kubernetes.io/instance: druid-sample
+        app.kubernetes.io/managed-by: kubedb.com
+        app.kubernetes.io/name: druids.kubedb.com
+        app.kubernetes.io/part-of: druid
+        kubedb.com/role: historicals
+    spec:
+      containers:
+        - command:
+            - /druid.sh
+            - historical
+          image: apache/druid:25.0.0
+          imagePullPolicy: IfNotPresent
+          name: druid
+          ports:
+            - containerPort: 8088
+              name: historicals
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /opt/druid/conf/druid/cluster/_common
+              name: common-config-volume
+            - mountPath: /opt/druid/conf/druid/cluster/data/historical
+              name: nodetype-config-volume
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: common-config-volume
+          secret:
+            defaultMode: 493
+            items:
+              - key: common.runtime.properties
+                path: common.runtime.properties
+              - key: jvm.config
+                path: jvm.config
+            secretName: druid-sample-config
+        - name: nodetype-config-volume
+          secret:
+            defaultMode: 493
+            items:
+              - key: historicals.properties
+                path: runtime.properties
+              - key: jvm.config
+                path: jvm.config
+            secretName: druid-sample-config
+  updateStrategy:
+    type: OnDelete

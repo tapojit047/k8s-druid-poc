@@ -3,42 +3,42 @@ kind: StatefulSet
 metadata:
   labels:
     app: druid
-    component: coordinator
+    component: overlord
     druid_cr: tiny-cluster
     environment: stage
-    nodeSpecUniqueStr: druid-tiny-cluster-coordinators
+    nodeSpecUniqueStr: druid-tiny-cluster-overlords
     release: alpha
-  name: druid-tiny-cluster-coordinators
+  name: druid-tiny-cluster-overlords
   namespace: druid
 spec:
   podManagementPolicy: Parallel
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: druid
-      component: coordinator
+      component: overlord
       druid_cr: tiny-cluster
       environment: stage
-      nodeSpecUniqueStr: druid-tiny-cluster-coordinators
+      nodeSpecUniqueStr: druid-tiny-cluster-overlords
       release: alpha
-  serviceName: druid-tiny-cluster-coordinators
+  serviceName: druid-tiny-cluster-overlords
   template:
     metadata:
       annotations:
         dummy: k8s_extn_needs_atleast_one_annotation
       labels:
         app: druid
-        component: coordinator
+        component: overlord
         druid_cr: tiny-cluster
         environment: stage
-        nodeSpecUniqueStr: druid-tiny-cluster-coordinators
+        nodeSpecUniqueStr: druid-tiny-cluster-overlords
         release: alpha
     spec:
       containers:
         - command:
             - /druid.sh
-            - coordinator
+            - overlord
           env:
             - name: POD_NAME
               valueFrom:
@@ -52,71 +52,71 @@ spec:
                   fieldPath: metadata.namespace
           image: apache/druid:25.0.0
           imagePullPolicy: IfNotPresent
-          livenessProbe:
-            failureThreshold: 10
-            httpGet:
-              path: /status/health
-              port: 8088
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
-          name: druid-tiny-cluster-coordinators
+#          livenessProbe:
+#            failureThreshold: 10
+#            httpGet:
+#              path: /status/health
+#              port: 8088
+#              scheme: HTTP
+#            initialDelaySeconds: 5
+#            periodSeconds: 10
+#            successThreshold: 1
+#            timeoutSeconds: 5
+          name: druid-tiny-cluster-overlords
           ports:
             - containerPort: 8088
               name: druid-port
               protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /status/health
-              port: 8088
-              scheme: HTTP
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 1
+#          readinessProbe:
+#            failureThreshold: 3
+#            httpGet:
+#              path: /status/health
+#              port: 8088
+#              scheme: HTTP
+#            periodSeconds: 10
+#            successThreshold: 1
+#            timeoutSeconds: 1
           resources: {}
           securityContext:
             privileged: true
-          startupProbe:
-            failureThreshold: 10
-            httpGet:
-              path: /status/health
-              port: 8088
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
+#          startupProbe:
+#            failureThreshold: 10
+#            httpGet:
+#              path: /status/health
+#              port: 8088
+#              scheme: HTTP
+#            initialDelaySeconds: 5
+#            periodSeconds: 10
+#            successThreshold: 1
+#            timeoutSeconds: 5
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
             - mountPath: /opt/druid/conf/druid/cluster/_common
               name: common-config-volume
               readOnly: true
-            - mountPath: /opt/druid/conf/druid/cluster/master/coordinator-overlord
+            - mountPath: /opt/druid/conf/druid/cluster/master/overlord
               name: nodetype-config-volume
               readOnly: true
             - mountPath: /opt/druid/extensions/mysql-connector
               name: mysqlconnector
       dnsPolicy: ClusterFirst
       initContainers:
-      - command:
-          - sh
-          - -c
-          - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
-            && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
-            /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
-        image: apache/druid:25.0.0
-        imagePullPolicy: IfNotPresent
-        name: mysqlconnector
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-          - mountPath: /opt/druid/extensions/mysql-connector
-            name: mysqlconnector
+        - command:
+            - sh
+            - -c
+            - wget -O /tmp/mysql-connector-j-8.0.32.tar.gz https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.32.tar.gz
+              && cd /tmp && tar -xf /tmp/mysql-connector-j-8.0.32.tar.gz && cp /tmp/mysql-connector-j-8.0.32/mysql-connector-j-8.0.32.jar
+              /opt/druid/extensions/mysql-connector/mysql-connector-java.jar
+          image: apache/druid:25.0.0
+          imagePullPolicy: IfNotPresent
+          name: mysqlconnector
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /opt/druid/extensions/mysql-connector
+              name: mysqlconnector
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:
@@ -131,7 +131,7 @@ spec:
           name: common-config-volume
         - configMap:
             defaultMode: 420
-            name: druid-tiny-cluster-coordinators-config
+            name: druid-tiny-cluster-overlords-config
           name: nodetype-config-volume
         - emptyDir: {}
           name: mysqlconnector

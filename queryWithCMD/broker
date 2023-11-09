@@ -1,0 +1,13 @@
+curl -X POST -H 'Content-Type: application/json' \
+-d '{
+  "query": "SELECT cityName FROM \"wikipedia_auto\" WHERE cityName IS NOT NULL",
+  "context": {
+    "timeout": 60000
+  }
+}' \
+http://localhost:8088/druid/v2/sql
+
+ SQL QUERY:
+ OverLord   -->     Does not Work
+ Router     -->     Works
+ Broker     -->     Works
