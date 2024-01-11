@@ -4,8 +4,8 @@ metadata:
   name: ha-postgres
   namespace: druid
 spec:
-  version: "13.2"
-  replicas: 3
+  version: "13.13"
+  replicas: 1
   storageType: Durable
   storage:
     storageClassName: "standard"
@@ -13,7 +13,7 @@ spec:
       - ReadWriteOnce
     resources:
       requests:
-        storage: 1Gi
+        storage: 100Mi
   init:
     script:
       configMap:

@@ -1,0 +1,6 @@
+# Make sure you replace `username`, `password`, `your-instance`, and `port` with the values for your deployment.
+curl --location --request POST 'http://admin:BZlcLOeShZKb4)vG@localhost:8888/druid/v2/sql/task/' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+    "query": "REPLACE INTO \"kubdb-dummy\" OVERWRITE ALL\nWITH \"ext\" AS (SELECT *\nFROM TABLE(\n  EXTERN(\n    '{\"type\":\"inline\",\"data\":\"{\\\"time\\\": \\\"2015-09-12T00:47:00.496Z\\\", \\\"name\\\": \\\"xyz\\\"}\"}',\n    '{\"type\":\"json\"}',\n    '[{\"name\":\"time\",\"type\":\"string\"},{\"name\":\"name\",\"type\":\"string\"}]'\n  )\n))\nSELECT\n  TIME_PARSE(\"time\") AS \"__time\",\n  \"name\"\nFROM \"ext\"\nPARTITIONED BY DAY",
+  }'

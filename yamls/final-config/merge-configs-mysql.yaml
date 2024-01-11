@@ -74,8 +74,8 @@ data:
     druid.processing.buffer.sizeBytes=25000000
     druid.processing.numThreads=2
     # Segment storage
-    druid.segmentCache.locations=[{"path":"/druid/data/segments","maxSize":10737418240}]
-    druid.server.maxSize=10737418240
+    druid.segmentCache.locations=[{"path":"/druid/data/segments","maxSize":10737418240}] #25MB
+    druid.server.maxSize=10737418240 #10GB
   middleManagers.properties: |
     druid.port=8088
     druid.service=druid/middleManager

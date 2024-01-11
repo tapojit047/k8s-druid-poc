@@ -1,0 +1,3 @@
+curl "http://admin:BZlcLOeShZKb4)vG@localhost:8082/druid/indexer/v1/task" \
+ --header 'Content-Type: application/json' \
+ --data @Query/inline-ingestion-task.json

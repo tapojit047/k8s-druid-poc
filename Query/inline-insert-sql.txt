@@ -1,0 +1,32 @@
+REPLACE INTO "kubdb-dummy" OVERWRITE ALL
+WITH "ext" AS (SELECT *
+FROM TABLE(
+  EXTERN(
+    '{"type":"inline","data":"{\"time\": \"2015-09-12T00:47:00.496Z\", \"name\": \"xyz\"}"}',
+    '{"type":"json"}',
+    '[{"name":"time","type":"string"},{"name":"name","type":"string"}]'
+  )
+))
+SELECT
+  TIME_PARSE("time") AS "__time",
+  "name"
+FROM "ext"
+PARTITIONED BY DAY
+
+
+--> Directly Coverted from Previous Ingestion Spec
+
+REPLACE INTO "kubdb-dummy" OVERWRITE ALL
+WITH "ext" AS (SELECT *
+FROM TABLE(
+  EXTERN(
+    '{"type":"inline","data":"{\"time\": \"2015-09-12T00:47:00.496Z\", \"name\": \"xyz\"}"}',
+    '{"type":"json"}',
+    '[{"name":"time","type":"string"},{"name":"name","type":"string"}]'
+  )
+))
+SELECT
+  TIME_PARSE("time") AS "__time",
+  "name"
+FROM "ext"
+PARTITIONED BY DAY
